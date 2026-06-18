@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<!-- LPagesAppLabs Platform v1.0 · Clip Trimmer · contact@lpagesapplabs.com -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Clip Trimmer — Viral 9:16 Video Automation</title>
+  <meta name="description" content="Clip Trimmer is a Python CLI tool that automatically converts talking-head footage into optimized 9:16 vertical clips with face tracking, punch zoom, and ASS captions.">
+  <link rel="canonical" href="https://clip-trimmer.lpagesapplabs.com/" />
+  <meta property="og:title" content="Clip Trimmer — Viral 9:16 Video Automation" />
+  <meta property="og:description" content="Python CLI. Face crop, punch zoom, captions. V2 complete. 55 tests passing." />
+  <meta property="og:url" content="https://clip-trimmer.lpagesapplabs.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="robots" content="index, follow">
+  <link rel="icon" href="https://lpagesapplabs.com/favicon.ico" sizes="any">
+  <link rel="icon" href="https://lpagesapplabs.com/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0F172A; --bg2: #111827;
+      --surface: #1E293B; --surface2: #162032;
+      --cyan: #06B6D4; --cyan-dim: #0891B2;
+      --cyan-glow: rgba(6,182,212,0.15);
+      --cyan-glow2: rgba(6,182,212,0.07);
+      --accent2: #22D3EE;
+      --emerald: #10B981;
+      --white: #F8FAFC; --muted: #94A3B8;
+      --border: rgba(6,182,212,0.18);
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 16px; line-height: 1.7; overflow-x: hidden; }
+    body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:0.4; }
+    section { position: relative; z-index: 1; }
+
+    nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:1.25rem 5%; background:rgba(15,23,42,0.88); backdrop-filter:blur(18px); border-bottom:1px solid var(--border); }
+    .nav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1rem; letter-spacing:0.03em; color:var(--white); display:flex; align-items:center; gap:0.5rem; text-decoration:none; }
+    .nav-logo span { color:var(--cyan); }
+    .nav-right { display:flex; align-items:center; gap:2rem; }
+    .nav-links { display:flex; gap:2rem; }
+    .nav-links a { font-family:'DM Mono',monospace; font-size:0.75rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--cyan); }
+    .nav-platform { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; border:1px solid var(--border); padding:0.35rem 0.8rem; border-radius:6px; transition:all 0.2s; }
+    .nav-platform:hover { color:var(--accent2); border-color:rgba(34,211,238,0.3); }
+    .nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+    .nav-hamburger span { display:block; width:22px; height:2px; background:var(--muted); border-radius:2px; }
+    .nav-mobile { display:none; flex-direction:column; background:rgba(15,23,42,0.97); border-top:1px solid var(--border); padding:1rem 5%; position:fixed; top:62px; left:0; right:0; z-index:99; }
+    .nav-mobile a { font-family:'DM Mono',monospace; font-size:0.85rem; color:var(--muted); text-decoration:none; letter-spacing:0.08em; text-transform:uppercase; padding:0.75rem 0; border-bottom:1px solid rgba(255,255,255,0.04); transition:color 0.2s; }
+    .nav-mobile a:last-child { border-bottom:none; }
+    .nav-mobile a:hover { color:var(--cyan); }
+    .nav-mobile.open { display:flex; }
+
+    #hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:10rem 5% 6rem; overflow:hidden; }
+    .hero-glow { position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; animation:pulse-glow 6s ease-in-out infinite; }
+    @keyframes pulse-glow { 0%,100%{opacity:0.7;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.08)} }
+    .hero-badge { display:inline-flex; align-items:center; gap:0.5rem; font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--cyan); background:var(--cyan-glow2); border:1px solid var(--border); padding:0.4rem 1rem; border-radius:999px; margin-bottom:2rem; animation:fadeUp 0.6s ease both; }
+    .badge-dot { width:6px; height:6px; border-radius:50%; background:var(--cyan); animation:blink 2s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(2rem,5vw,4rem); line-height:1.15; letter-spacing:-0.02em; margin-bottom:1.5rem; animation:fadeUp 0.7s 0.1s ease both; }
+    h1 .accent { color:var(--cyan); }
+    .hero-sub { font-size:clamp(1rem,2vw,1.15rem); color:var(--muted); max-width:520px; margin:0 auto 2.8rem; font-weight:300; animation:fadeUp 0.7s 0.2s ease both; }
+    .btn-group { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; animation:fadeUp 0.7s 0.3s ease both; }
+    .btn { display:inline-flex; align-items:center; gap:0.6rem; padding:0.85rem 1.8rem; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:500; text-decoration:none; cursor:pointer; transition:all 0.2s; }
+    .btn-primary { background:var(--cyan); color:#0F172A; border:none; font-weight:700; }
+    .btn-primary:hover { background:var(--cyan-dim); transform:translateY(-2px); box-shadow:0 8px 30px rgba(6,182,212,0.4); }
+    .btn-secondary { background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.15); }
+    .btn-secondary:hover { border-color:var(--cyan); color:var(--cyan); transform:translateY(-2px); }
+
+    /* TERMINAL MOCK */
+    .terminal-wrap { animation:fadeUp 0.7s 0.4s ease both; margin-top:3rem; width:100%; max-width:580px; }
+    .terminal { background:#0d1117; border:1px solid rgba(6,182,212,0.25); border-radius:12px; overflow:hidden; text-align:left; }
+    .terminal-bar { background:#161b22; padding:0.7rem 1rem; display:flex; align-items:center; gap:0.6rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .t-dot { width:10px; height:10px; border-radius:50%; }
+    .t-dot.r { background:#FF5F57; } .t-dot.y { background:#FEBC2E; } .t-dot.g { background:#28C840; }
+    .terminal-body { padding:1.2rem 1.4rem; font-family:'DM Mono',monospace; font-size:0.8rem; line-height:1.9; }
+    .t-prompt { color:#64748b; }
+    .t-cmd { color:#e2e8f0; }
+    .t-out { color:var(--muted); }
+    .t-ok { color:var(--emerald); }
+    .t-cyan { color:var(--cyan); }
+
+    .hero-stat-bar { display:flex; gap:2.5rem; flex-wrap:wrap; justify-content:center; margin-top:4rem; padding-top:3rem; border-top:1px solid var(--border); animation:fadeUp 0.7s 0.55s ease both; }
+    .stat { text-align:center; }
+    .stat-num { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:700; color:var(--cyan); }
+    .stat-label { font-size:0.75rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:0.08em; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+    .section-label { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.14em; text-transform:uppercase; color:var(--cyan); margin-bottom:1rem; }
+    .section-title { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; line-height:1.2; margin-bottom:1rem; }
+
+    /* PIPELINE */
+    #pipeline { padding:7rem 5%; background:var(--surface2); border-top:1px solid var(--border); }
+    .pipeline-inner { max-width:1100px; margin:0 auto; }
+    .pipeline-header { margin-bottom:3rem; }
+    .pipeline-header p { color:var(--muted); font-size:1rem; margin-top:0.5rem; max-width:480px; }
+    .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; }
+    .step-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.6rem; transition:all 0.2s; }
+    .step-card:hover { border-color:rgba(6,182,212,0.4); transform:translateY(-3px); }
+    .step-n { font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.12em; color:var(--cyan); margin-bottom:0.8rem; }
+    .step-icon { font-size:1.6rem; margin-bottom:0.7rem; }
+    .step-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; margin-bottom:0.4rem; }
+    .step-desc { font-size:0.82rem; color:var(--muted); line-height:1.6; }
+
+    /* FEATURES */
+    #features { padding:7rem 5%; max-width:1100px; margin:0 auto; }
+    .features-header { text-align:center; margin-bottom:3.5rem; }
+    .feat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.25rem; }
+    .feat-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:1.8rem; transition:all 0.25s; }
+    .feat-card:hover { transform:translateY(-3px); border-color:rgba(6,182,212,0.4); }
+    .feat-icon { font-size:1.6rem; margin-bottom:0.9rem; }
+    .feat-title { font-family:'Syne',sans-serif; font-size:0.95rem; font-weight:700; margin-bottom:0.4rem; }
+    .feat-desc { font-size:0.85rem; color:var(--muted); line-height:1.65; }
+
+    /* TECH STACK */
+    #tech { padding:6rem 5%; background:var(--surface2); border-top:1px solid var(--border); }
+    .tech-inner { max-width:900px; margin:0 auto; }
+    .tech-header { text-align:center; margin-bottom:3rem; }
+    .stack-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.8rem; }
+    .stack-item { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.2rem; display:flex; align-items:center; gap:0.8rem; transition:all 0.2s; }
+    .stack-item:hover { border-color:rgba(6,182,212,0.35); }
+    .stack-icon { font-size:1.3rem; flex-shrink:0; }
+    .stack-name { font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--cyan); font-weight:500; }
+    .stack-role { font-size:0.73rem; color:var(--muted); }
+
+    /* STATUS */
+    #status { padding:6rem 5%; }
+    .status-inner { max-width:800px; margin:0 auto; text-align:center; }
+    .status-bar { display:flex; flex-direction:column; gap:1rem; margin-top:2.5rem; }
+    .status-row { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:1rem 1.4rem; display:flex; align-items:center; gap:1rem; }
+    .s-label { font-family:'DM Mono',monospace; font-size:0.8rem; color:var(--muted); flex:1; text-align:left; }
+    .s-badge { font-family:'DM Mono',monospace; font-size:0.7rem; padding:0.2rem 0.6rem; border-radius:4px; white-space:nowrap; }
+    .s-done { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); color:var(--emerald); }
+    .s-pending { background:rgba(6,182,212,0.1); border:1px solid rgba(6,182,212,0.2); color:var(--cyan); }
+
+    #contact { padding:6rem 5%; background:var(--surface2); border-top:1px solid var(--border); text-align:center; }
+    .contact-box { max-width:480px; margin:2rem auto 0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:2.5rem; }
+    .contact-box p { color:var(--muted); font-size:0.95rem; margin-bottom:1.4rem; }
+    .contact-email { display:inline-block; font-family:'DM Mono',monospace; font-size:0.95rem; color:var(--cyan); text-decoration:none; padding:0.5rem 1rem; border:1px solid var(--border); border-radius:6px; transition:border-color 0.2s; }
+    .contact-email:hover { border-color:var(--cyan); }
+
+    footer { padding:2.5rem 5%; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; position:relative; z-index:1; }
+    .footer-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:0.95rem; text-decoration:none; color:var(--white); }
+    .footer-logo span { color:var(--cyan); }
+    .footer-links { display:flex; gap:1.8rem; flex-wrap:wrap; }
+    .footer-links a { font-family:'DM Mono',monospace; font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); text-decoration:none; transition:color 0.2s; }
+    .footer-links a:hover { color:var(--cyan); }
+    .footer-copy { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--muted); opacity:0.5; }
+
+    .reveal { opacity:0; transform:translateY(20px); transition:opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity:1; transform:none; }
+
+    @media(max-width:768px){
+      .nav-links{display:none} .nav-hamburger{display:flex} .nav-right{gap:1rem}
+      #hero{padding:7rem 5% 4rem} h1{font-size:clamp(1.9rem,8vw,2.8rem)}
+      .hero-stat-bar{gap:1.5rem;margin-top:2.5rem;padding-top:2rem} .stat-num{font-size:1.3rem}
+      footer{flex-direction:column;text-align:center;align-items:center} .footer-links{justify-content:center;gap:1rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="#hero" class="nav-logo"><span>Clip</span>Trimmer</a>
+  <div class="nav-right">
+    <div class="nav-links">
+      <a href="#pipeline">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#tech">Stack</a>
+      <a href="#status">Status</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="https://lpagesapplabs.com" class="nav-platform" rel="noopener noreferrer">← Platform</a>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="#pipeline" onclick="closeMenu()">How It Works</a>
+  <a href="#features" onclick="closeMenu()">Features</a>
+  <a href="#tech" onclick="closeMenu()">Stack</a>
+  <a href="#status" onclick="closeMenu()">Status</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+  <a href="https://lpagesapplabs.com" onclick="closeMenu()">← Platform</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> V2 Complete · Developer Tool · Python CLI</div>
+  <h1>Talking-Head Footage<br><span class="accent">→ Viral 9:16</span><br>Automatically.</h1>
+  <p class="hero-sub">A Python CLI that converts raw video into optimized vertical clips — face tracking, punch zoom, word-level captions, and loudnorm audio, all from a single command.</p>
+  <div class="btn-group">
+    <a href="#pipeline" class="btn btn-primary">See How It Works</a>
+    <a href="#features" class="btn btn-secondary">View Features</a>
+  </div>
+
+  <!-- TERMINAL MOCK -->
+  <div class="terminal-wrap">
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="t-dot r"></span><span class="t-dot y"></span><span class="t-dot g"></span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="t-prompt">$ </span><span class="t-cmd">clip-trimmer input.mp4 --output clip.mp4 --verbose</span></div>
+        <div><span class="t-out">✓ Audio extracted — 00:04:12</span></div>
+        <div><span class="t-out">✓ Speech segments detected — 94% speech ratio</span></div>
+        <div><span class="t-out">✓ Whisper transcript — 847 words, word-level timestamps</span></div>
+        <div><span class="t-out">✓ Face detected — tracking 1 subject</span></div>
+        <div><span class="t-out">✓ Crop plan — 9:16 face-centred, 3 punch zones</span></div>
+        <div><span class="t-out">✓ Captions built — 214 groups, active-word highlight</span></div>
+        <div><span class="t-out">✓ Segments rendered — 14 segments, loudnorm pass</span></div>
+        <div><span class="t-ok">✓ Done — clip.mp4 (00:03:58) in 47.2s</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-stat-bar">
+    <div class="stat"><div class="stat-num">55</div><div class="stat-label">Tests passing</div></div>
+    <div class="stat"><div class="stat-num">V2</div><div class="stat-label">Current version</div></div>
+    <div class="stat"><div class="stat-num">9:16</div><div class="stat-label">Output format</div></div>
+    <div class="stat"><div class="stat-num">1 cmd</div><div class="stat-label">To run</div></div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="pipeline-inner">
+    <div class="pipeline-header reveal">
+      <div class="section-label">The Pipeline</div>
+      <h2 class="section-title">One Command.<br>Six Stages.</h2>
+      <p>Every step is deterministic, testable in isolation, and configurable via CLI flags.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card reveal"><div class="step-n">01 / AUDIO</div><div class="step-icon">🎙</div><div class="step-title">Extract & Detect Speech</div><div class="step-desc">WebRTC VAD strips silence. Only real speech regions go forward.</div></div>
+      <div class="step-card reveal"><div class="step-n">02 / TRANSCRIPT</div><div class="step-icon">📝</div><div class="step-title">Word-Level Timestamps</div><div class="step-desc">OpenAI Whisper produces per-word timestamps with model caching.</div></div>
+      <div class="step-card reveal"><div class="step-n">03 / FACE</div><div class="step-icon">👁</div><div class="step-title">Face Tracking</div><div class="step-desc">Detects and tracks the main subject for a face-centred 9:16 crop.</div></div>
+      <div class="step-card reveal"><div class="step-n">04 / EDIT</div><div class="step-icon">✂️</div><div class="step-title">Crop & Punch Zoom Plan</div><div class="step-desc">Per-segment scale→crop pipeline with slow-zoom for engagement.</div></div>
+      <div class="step-card reveal"><div class="step-n">05 / CAPTIONS</div><div class="step-icon">💬</div><div class="step-title">ASS Caption Burn</div><div class="step-desc">3–5 word groups with active-word highlight — burned into the output.</div></div>
+      <div class="step-card reveal"><div class="step-n">06 / RENDER</div><div class="step-icon">🎬</div><div class="step-title">FFmpeg Render & Loudnorm</div><div class="step-desc">Segments rendered and concatenated. Audio normalised to broadcast standard.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="features-header reveal">
+    <div class="section-label">What's In V2</div>
+    <h2 class="section-title">Built for Reliability.</h2>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card reveal"><div class="feat-icon">🎯</div><div class="feat-title">Face-Centred Crop</div><p class="feat-desc">Automatically centres the 9:16 crop on the detected face. Falls back to centre crop when no face is present.</p></div>
+    <div class="feat-card reveal"><div class="feat-icon">⚡</div><div class="feat-title">Punch Zoom</div><p class="feat-desc">Adds slow-zoom punch-in effects at strategic moments to increase retention without looking artificial.</p></div>
+    <div class="feat-card reveal"><div class="feat-icon">💬</div><div class="feat-title">ASS Captions with Highlight</div><p class="feat-desc">Word-level timestamps from Whisper drive 3–5 word caption groups with an active-word highlight that tracks speech.</p></div>
+    <div class="feat-card reveal"><div class="feat-icon">🔇</div><div class="feat-title">Silence Removal</div><p class="feat-desc">WebRTC VAD detects and cuts silent sections. <code>--silence-gap</code> flag controls the minimum gap to cut.</p></div>
+    <div class="feat-card reveal"><div class="feat-icon">📊</div><div class="feat-title">Loudnorm Audio</div><p class="feat-desc">EBU R128 loudness normalisation applied per-segment and on the final output. Consistent audio across all clips.</p></div>
+    <div class="feat-card reveal"><div class="feat-icon">🧪</div><div class="feat-title">55 Tests, CI/CD</div><p class="feat-desc">Unit tests cover every module. GitHub Actions CI runs ruff + pytest on every push. Zero suppressed warnings.</p></div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="tech-inner">
+    <div class="tech-header reveal">
+      <div class="section-label">Tech Stack</div>
+      <h2 class="section-title">Built on Proven Tools.</h2>
+    </div>
+    <div class="stack-grid reveal">
+      <div class="stack-item"><span class="stack-icon">🐍</span><div><div class="stack-name">Python</div><div class="stack-role">CLI · core pipeline</div></div></div>
+      <div class="stack-item"><span class="stack-icon">🎤</span><div><div class="stack-name">Whisper</div><div class="stack-role">Word-level transcription</div></div></div>
+      <div class="stack-item"><span class="stack-icon">📡</span><div><div class="stack-name">WebRTC VAD</div><div class="stack-role">Speech detection</div></div></div>
+      <div class="stack-item"><span class="stack-icon">🎬</span><div><div class="stack-name">FFmpeg</div><div class="stack-role">Video render + loudnorm</div></div></div>
+      <div class="stack-item"><span class="stack-icon">👁</span><div><div class="stack-name">OpenCV</div><div class="stack-role">Face detection + tracking</div></div></div>
+      <div class="stack-item"><span class="stack-icon">✅</span><div><div class="stack-name">pytest + ruff</div><div class="stack-role">Tests · linting · CI</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- STATUS -->
+<section id="status">
+  <div class="status-inner">
+    <div class="reveal">
+      <div class="section-label">Build Status</div>
+      <h2 class="section-title">V2 Complete.</h2>
+      <p style="color:var(--muted);margin-top:0.5rem;">All V2 modules are shipped. V3 (smart tracking, AI-guided cuts) is on the roadmap.</p>
+    </div>
+    <div class="status-bar reveal">
+      <div class="status-row"><span class="s-label">Core pipeline (audio → render)</span><span class="s-badge s-done">✓ V2 Complete</span></div>
+      <div class="status-row"><span class="s-label">Whisper word-level timestamps</span><span class="s-badge s-done">✓ V2 Complete</span></div>
+      <div class="status-row"><span class="s-label">Face tracking crop</span><span class="s-badge s-done">✓ V2 Complete</span></div>
+      <div class="status-row"><span class="s-label">ASS captions + active word highlight</span><span class="s-badge s-done">✓ V2 Complete</span></div>
+      <div class="status-row"><span class="s-label">55 unit tests + CI/CD</span><span class="s-badge s-done">✓ V2 Complete</span></div>
+      <div class="status-row"><span class="s-label">E2E test on real clips</span><span class="s-badge s-pending">→ In Progress</span></div>
+      <div class="status-row"><span class="s-label">V3 — Smart tracking, AI-guided cuts</span><span class="s-badge" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted)">Roadmap</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="reveal">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Contact</h2>
+  </div>
+  <div class="contact-box reveal">
+    <p>Questions, feedback, or integration requests — reach out directly.</p>
+    <a href="mailto:contact@lpagesapplabs.com" class="contact-email">contact@lpagesapplabs.com</a>
+  </div>
+</section>
+
+<footer>
+  <a href="#hero" class="footer-logo"><span>Clip</span>Trimmer</a>
+  <div class="footer-links">
+    <a href="#pipeline">Pipeline</a>
+    <a href="#features">Features</a>
+    <a href="#contact">Contact</a>
+    <a href="https://lpagesapplabs.com" style="color:#22D3EE;" rel="noopener noreferrer">lpagesapplabs.com</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </div>
+  <div class="footer-copy">© 2026 LPagesAppLabs / D.Badi</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  const hamburger = document.getElementById('hamburger');
+  const navMobile = document.getElementById('navMobile');
+  hamburger.addEventListener('click', () => navMobile.classList.toggle('open'));
+  function closeMenu() { navMobile.classList.remove('open'); }
+</script>
+</body>
+</html>
